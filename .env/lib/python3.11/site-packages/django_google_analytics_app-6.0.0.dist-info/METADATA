@@ -1,0 +1,91 @@
+Metadata-Version: 2.1
+Name: django-google-analytics-app
+Version: 6.0.0
+Summary: Django Google Analytics app allowing for server side/non-js tracking.
+Home-page: http://github.com/praekelt/django-google-analytics
+Author: Praekelt.org
+Author-email: dev@praekelt.org
+License: BSD
+Keywords: django,google,analytics
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Framework :: Django
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content
+License-File: LICENSE
+Requires-Dist: Django (<4.2,>=3.2)
+Requires-Dist: celery (<5.2.3)
+Requires-Dist: requests
+Requires-Dist: beautifulsoup4
+Requires-Dist: structlog
+Requires-Dist: importlib-metadata (<5) ; python_version == "3.7"
+Provides-Extra: lint
+Requires-Dist: flake8 ; extra == 'lint'
+Provides-Extra: test
+Requires-Dist: responses ; extra == 'test'
+
+Django Google Analytics
+=======================
+**Django Google Analytics brings the power of server side/non-js Google Analytics to your Django projects**
+
+.. contents:: Contents
+    :depth: 3
+
+Installation
+------------
+
+#. Install ``django-google-analytics-app`` from PyPI or add to your Python path some other way.
+#. Add ``google_analytics`` to your ``INSTALLED_APPS`` setting.
+#. Add URL include to your project's ``urls.py`` file::
+
+    re_path('djga/', include('google_analytics.urls')),
+
+#. Specify a Google Analytics `tracking code <https://support.google.com/analytics/bin/answer.py?hl=en&answer=1008080>`_, i.e.::
+
+    GOOGLE_ANALYTICS = {
+        'google_analytics_id': 'UA-000000-2',
+    }
+
+   where ``UA-000000-2`` is your unique tracking code.
+
+#. If you intend tracking through middleware and Celery remember to `install Celery and run its worker process <http://docs.celeryproject.org/en/latest/django/first-steps-with-django.html>`_.
+
+Usage
+-----
+
+There are two ways to add tracking to your pages.
+
+1. HTML tag
+***********
+
+Using ``<img/>`` and sticking it in your ``base.html``::
+
+    {% load google_analytics_tags %}
+    <div style="display:none">
+        <img src="{% google_analytics %}" width="0" height="0" />
+    </div>
+
+2. Middleware + Celery
+**********************
+
+Using Django's middleware, you can process every request and use Celery to make the request to Google Analytics::
+
+    MIDDLEWARE = [
+        'google_analytics.middleware.GoogleAnalyticsMiddleware',
+    ]
+
+You have to add ``google_analytics`` to your ``CELERY_IMPORTS``::
+
+    CELERY_IMPORTS = ('google_analytics.tasks')
+
+You can also specify paths that will be excluded when tracking::
+
+    GOOGLE_ANALYTICS_IGNORE_PATH = ['/health/', ]
